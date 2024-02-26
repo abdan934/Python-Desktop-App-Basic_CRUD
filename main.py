@@ -9,8 +9,8 @@ global port_me
 
 host_me = "localhost"
 db_me = "db_sb"
-user_me = "abdan"
-passwd_me = "abdan221279"
+user_me = "root"
+passwd_me = ""
 port_me = 3306
 
 class Ui_MainWindow(object):
