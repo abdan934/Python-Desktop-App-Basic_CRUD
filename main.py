@@ -9,8 +9,8 @@ global port_me
 
 host_me = "localhost"
 db_me = "db_sb"
-user_me = "root"
-passwd_me = ""
+user_me = "abdan"
+passwd_me = "abdan221279"
 port_me = 3306
 
 class Ui_MainWindow(object):
@@ -38,6 +38,18 @@ class Ui_MainWindow(object):
 
         if result == QtWidgets.QMessageBox.Ok:
             self.open_view()
+    def messageboxvalidasi(self, title, message):
+        mess = QtWidgets.QMessageBox()
+        mess.setIcon(QtWidgets.QMessageBox.Information)
+        mess.setWindowTitle(title)
+        mess.setText(message)
+        
+        # alur
+        mess.setStandardButtons(QtWidgets.QMessageBox.Ok|QtWidgets.QMessageBox.Cancel)
+        result = mess.exec_()
+
+        if result == QtWidgets.QMessageBox.Ok:
+            self.open_view()
     
     #view
     def open_view(self):
@@ -59,18 +71,22 @@ class Ui_MainWindow(object):
 
         # Tombol Insert/Create
         self.InsertButton = QtWidgets.QPushButton("Insert")
+        self.InsertButton.hide()
         self.buttonLayout.addWidget(self.InsertButton)
 
         # Tombol Read
         self.ReadButton = QtWidgets.QPushButton("Read")
+        self.ReadButton.hide()
         self.buttonLayout.addWidget(self.ReadButton)
 
         # Tombol Update
         self.UpdateButton = QtWidgets.QPushButton("Update")
+        self.UpdateButton.hide()
         self.buttonLayout.addWidget(self.UpdateButton)
 
         # Tombol Delete
         self.DeleteButton = QtWidgets.QPushButton("Delete")
+        self.DeleteButton.hide()
         self.buttonLayout.addWidget(self.DeleteButton)
 
         # Tambahkan layout tombol ke layout utama
@@ -79,7 +95,7 @@ class Ui_MainWindow(object):
         # Header
         self.headerLabel = QtWidgets.QLabel(self.centralwidget)
         self.headerLabel.setObjectName("headerLabel")
-        self.headerLabel.setText("Formulir Tambah Data Siswa Baru")
+        self.headerLabel.setText("Data Siswa Baru")
         font = self.headerLabel.font()
         font.setPointSize(16)  # Ubah ukuran font sesuai keinginan
         font.setBold(True)
@@ -155,31 +171,32 @@ class Ui_MainWindow(object):
         # Tombol Simpan
         self.pushButton = QtWidgets.QPushButton()
         self.pushButton.setObjectName("pushButton")
-
+        self.pushButton.setStyleSheet("background-color: #150485; color: white;")
+        
         # Tombol Reset
         self.resetButton = QtWidgets.QPushButton()
         self.resetButton.setObjectName("resetButton")
         self.resetButton.setText("Reset")
+        self.resetButton.setStyleSheet("background-color: #FF9300; color: white;")
 
         self.formLayout.addRow(self.resetButton, self.pushButton)
-        # Connect pushButton to insert_data method
         self.pushButton.clicked.connect(self.insert_data)
-        # Connect resetButton to reset_inputs method
         self.resetButton.clicked.connect(self.reset_inputs)
 
-        # Tambahkan form layout ke layout utama
         self.mainLayout.addLayout(self.formLayout)
 
         # Table Widget untuk menampilkan data
         self.tableWidget = QtWidgets.QTableWidget(self.centralwidget)
         self.tableWidget.setObjectName("tableWidget")
-        self.tableWidget.setColumnCount(5)  # Sesuaikan dengan jumlah kolom
+        self.tableWidget.setColumnCount(7) 
+        header_labels = ['id','Nama', 'Kelas', 'Asal', 'Alamat', 'No. HP','Aksi']
+        self.tableWidget.setColumnWidth(5, 150)
+        self.tableWidget.setHorizontalHeaderLabels(header_labels)
         self.mainLayout.addWidget(self.tableWidget)
+        self.tableWidget.setColumnHidden(0, True)
 
-        # Connect ReadButton to read_data method
-        self.ReadButton.clicked.connect(self.read_data)
+        self.read_data()
 
-        # Atur central widget dan sambungkan objek
         MainWindow.setCentralWidget(self.centralwidget)
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -208,10 +225,10 @@ class Ui_MainWindow(object):
         no_hp = self.plainTextEdit_5.text()
 
         if not (nama and kelas and asal and alamat and no_hp):
-            self.messagebox("Error", "Harap isi semua field dengan benar.")
+            self.messagebox("Gagal", "Harap isi semua field dengan benar.")
             return
         if not (no_hp.isdigit()):
-            self.messagebox("Error", "No HP diisi dengan benar.")
+            self.messagebox("Gagal", "No HP diisi dengan benar.")
             return
         try:
             con = pymysql.connect(db=db_me, user=user_me, host=host_me, passwd=passwd_me, port=port_me, autocommit=True)
@@ -221,10 +238,11 @@ class Ui_MainWindow(object):
             cur.execute(query, (nama, kelas, asal, alamat, no_hp))
 
             self.reset_inputs()
+            self.read_data()
             self.messagebox("Success", "Data Disimpan")
         except pymysql.Error as e:
-            print(f"Error: {str(e)}")
-            self.messagebox("Error", f"Terjadi kesalahan: {str(e)}")
+            print(f"Gagal: {str(e)}")
+            self.messagebox("Gagal", f"Terjadi kesalahan: {str(e)}")
         finally:
             con.close()
 
@@ -232,21 +250,59 @@ class Ui_MainWindow(object):
         try:
             con = pymysql.connect(db=db_me, user=user_me, host=host_me, passwd=passwd_me, port=port_me, autocommit=True)
             cur = con.cursor()
-            cur.execute("SELECT * FROM 'tb_siswa_baru'")
+            cur.execute("SELECT DISTINCT * FROM tb_siswa_baru")
             data = cur.fetchall()
             if data:
-                # Clear table content
                 self.tableWidget.setRowCount(0)
                 for row_num, row_data in enumerate(data):
                     self.tableWidget.insertRow(row_num)
                     for col_num, col_data in enumerate(row_data):
                         self.tableWidget.setItem(row_num, col_num, QtWidgets.QTableWidgetItem(str(col_data)))
+                    
+                    # Menambahkan tombol pada kolom aksi
+                    action_widget = QtWidgets.QWidget()
+                    layout = QtWidgets.QHBoxLayout()
+                                        
+                    update_button = QtWidgets.QPushButton("Update")
+                    update_button.setMaximumWidth(200)
+                    update_button.setStyleSheet("background-color: #03C4A1; color: white;")
+
+                    delete_button = QtWidgets.QPushButton("Delete")
+                    delete_button.setMaximumWidth(200)
+                    delete_button.setStyleSheet("background-color: #C62A88; color: white;")
+                    #delete_button.clicked.connect(lambda _, id=row_data[-1]: self.delete_data(id)) 
+
+                    layout.setContentsMargins(0, 0, 0, 0)
+                                        
+                    layout.addWidget(update_button)
+                    layout.addWidget(delete_button)
+                                        
+                    action_widget.setLayout(layout)
+                                        
+                    self.tableWidget.setCellWidget(row_num, len(row_data), action_widget)
+
+
             else:
                 self.messagebox("Info", "Data tidak ditemukan")
         except pymysql.Error as e:
-            error_message = f"Error: {str(e)}"
-            print(error_message)  # Cetak pesan kesalahan ke konsol
-            self.messagebox("Error", f"Terjadi kesalahan: {str(e)}")
+            error_message = f"Gagal: {str(e)}"
+            print(error_message) 
+            self.messagebox("Gagal", f"Terjadi kesalahan: {str(e)}")
+        finally:
+            con.close()
+
+    def delete_data(self, id):
+        try:
+
+            con = pymysql.connect(db=db_me, user=user_me, host=host_me, passwd=passwd_me, port=port_me, autocommit=True)
+            cur = con.cursor()
+            cur.execute("DELETE FROM tb_siswa_baru WHERE id = %s", (id,))
+            self.messagebox("Success", "Data berhasil dihapus")
+            self.read_data()  # Refresh data after deletion
+        except pymysql.Error as e:
+            error_message = f"Gagal: {str(e)}"
+            print(error_message) 
+            self.messagebox("Gagal", f"Terjadi kesalahan: {str(e)}")
         finally:
             con.close()
 
@@ -258,5 +314,5 @@ if __name__ == "__main__":
     ui = Ui_MainWindow()
     ui.connect()
     ui.setupUi(MainWindow)
-    MainWindow.show()
+    MainWindow.showMaximized()
     sys.exit(app.exec_())
