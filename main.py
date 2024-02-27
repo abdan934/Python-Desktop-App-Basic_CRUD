@@ -38,7 +38,8 @@ class Ui_MainWindow(object):
 
         if result == QtWidgets.QMessageBox.Ok:
             self.open_view()
-    def messageboxvalidasi(self, title, message):
+
+    def messageboxvalidasi(self, title, message,aksi,id):
         mess = QtWidgets.QMessageBox()
         mess.setIcon(QtWidgets.QMessageBox.Information)
         mess.setWindowTitle(title)
@@ -49,7 +50,13 @@ class Ui_MainWindow(object):
         result = mess.exec_()
 
         if result == QtWidgets.QMessageBox.Ok:
-            self.open_view()
+            if(aksi == "delete"):
+                self.delete_data(id)
+                self.read_data()
+            elif(aksi == "update"):
+                self.read_data()
+        elif result == QtWidgets.QMessageBox.Cancel:
+            self.read_data()
     
     #view
     def open_view(self):
@@ -193,7 +200,7 @@ class Ui_MainWindow(object):
         self.tableWidget.setColumnWidth(5, 150)
         self.tableWidget.setHorizontalHeaderLabels(header_labels)
         self.mainLayout.addWidget(self.tableWidget)
-        # self.tableWidget.setColumnHidden(0, True)
+        self.tableWidget.setColumnHidden(0, True)
 
         self.read_data()
 
@@ -239,7 +246,7 @@ class Ui_MainWindow(object):
 
             self.reset_inputs()
             self.read_data()
-            self.messagebox("Success", "Data Disimpan")
+            self.messagebox("Behasil", "Data Disimpan")
         except pymysql.Error as e:
             print(f"Gagal: {str(e)}")
             self.messagebox("Gagal", f"Terjadi kesalahan: {str(e)}")
@@ -258,7 +265,7 @@ class Ui_MainWindow(object):
                     self.tableWidget.insertRow(row_num)
                     for col_num, col_data in enumerate(row_data):
                         self.tableWidget.setItem(row_num, col_num, QtWidgets.QTableWidgetItem(str(col_data)))
-                    
+
                     # Menambahkan tombol pada kolom aksi
                     action_widget = QtWidgets.QWidget()
                     layout = QtWidgets.QHBoxLayout()
@@ -270,10 +277,8 @@ class Ui_MainWindow(object):
                     delete_button = QtWidgets.QPushButton("Delete")
                     delete_button.setMaximumWidth(200)
                     delete_button.setStyleSheet("background-color: #C62A88; color: white;")
-                    # id_sb=row_data[0]
-                    # self.messagebox("Gagal", id_sb)
-
-                    # delete_button.clicked.connect(lambda _, id=row_data[0]: self.delete_data(id)) 
+                    
+                    delete_button.clicked.connect(lambda _, id=str(row_data[0]): self.messageboxvalidasi("Perhatian","Yakin ingin menghapus data?","delete",id)) 
 
                     layout.setContentsMargins(0, 0, 0, 0)
                                         
@@ -284,9 +289,8 @@ class Ui_MainWindow(object):
                                         
                     self.tableWidget.setCellWidget(row_num, len(row_data), action_widget)
 
-
-            else:
-                self.messagebox("Info", "Data tidak ditemukan")
+            # else:
+            #     self.messagebox("Info", "Data tidak ditemukan")
         except pymysql.Error as e:
             error_message = f"Gagal: {str(e)}"
             print(error_message) 
@@ -297,11 +301,11 @@ class Ui_MainWindow(object):
     def delete_data(self, id):
         try:
 
-            #con = pymysql.connect(db=db_me, user=user_me, host=host_me, passwd=passwd_me, port=port_me, autocommit=True)
-            #cur = con.cursor()
-            #cur.execute("DELETE FROM tb_siswa_baru WHERE id = %s", (id,))
-            self.messagebox("Success", id)
-            self.read_data()  # Refresh data after deletion
+            con = pymysql.connect(db=db_me, user=user_me, host=host_me, passwd=passwd_me, port=port_me, autocommit=True)
+            cur = con.cursor()
+            cur.execute("DELETE FROM tb_siswa_baru WHERE id_sb = %s", (id,))
+            self.read_data() 
+            self.messagebox("Behasil", "Data Terhapus")
         except pymysql.Error as e:
             error_message = f"Gagal: {str(e)}"
             print(error_message) 
