@@ -268,8 +268,7 @@ class Ui_MainWindow(object):
         except pymysql.Error as e:
             print(f"Gagal: {str(e)}")
             self.messagebox("Gagal", f"Terjadi kesalahan: {str(e)}")
-        finally:
-            con.close()
+        
 
     def read_data(self):
         try:
@@ -314,8 +313,7 @@ class Ui_MainWindow(object):
             error_message = f"Gagal: {str(e)}"
             print(error_message) 
             self.messagebox("Gagal", f"Terjadi kesalahan: {str(e)}")
-        finally:
-            con.close()
+        
 
     def delete_data(self, id):
         try:
@@ -328,8 +326,7 @@ class Ui_MainWindow(object):
             error_message = f"Gagal: {str(e)}"
             print(error_message) 
             self.messagebox("Gagal", f"Terjadi kesalahan: {str(e)}")
-        finally:
-            con.close()
+        
 
     def update_data(self, id):
         try:
@@ -358,8 +355,7 @@ class Ui_MainWindow(object):
             error_message = f"Gagal: {str(e)}"
             print(error_message) 
             self.messagebox("Gagal", f"Terjadi kesalahan: {str(e)}")
-        finally:
-            con.close()
+        
 
     def update_data_aksi(self, id):
         try:
@@ -383,8 +379,7 @@ class Ui_MainWindow(object):
             error_message = f"Gagal: {str(e)}"
             print(error_message) 
             self.messagebox("Gagal", f"Terjadi kesalahan: {str(e)}")
-        finally:
-            con.close()
+        
 
 
 if __name__ == "__main__":
