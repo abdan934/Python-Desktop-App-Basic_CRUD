@@ -239,7 +239,7 @@ class Ui_MainWindow(object):
         if id_sb:
             self.update_data_aksi(id_sb)
         else:
-            self.insert_data
+            self.insert_data()
 
     def insert_data(self):
 
