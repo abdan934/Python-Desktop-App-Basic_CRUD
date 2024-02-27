@@ -117,6 +117,14 @@ class Ui_MainWindow(object):
         # Form Layout untuk label dan input
         self.formLayout = QtWidgets.QFormLayout()
 
+        # Input untuk ID update
+        self.plainTextEdit_id = QtWidgets.QPlainTextEdit()
+        self.plainTextEdit_id.setObjectName("plainTextEdit")
+        self.plainTextEdit_id.setFixedWidth(180) 
+        self.plainTextEdit_id.setFixedHeight(30) 
+        self.plainTextEdit_id.hide()
+        self.formLayout.addRow(self.plainTextEdit_id)
+
         # Label dan input untuk Nama
         self.labelNama = QtWidgets.QLabel()
         self.labelNama.setObjectName("labelNama")
@@ -186,8 +194,10 @@ class Ui_MainWindow(object):
         self.resetButton.setText("Reset")
         self.resetButton.setStyleSheet("background-color: #FF9300; color: white;")
 
+        self.pushButton.clicked.connect(self.btn_cek_aksi)
+        
         self.formLayout.addRow(self.resetButton, self.pushButton)
-        self.pushButton.clicked.connect(self.insert_data)
+
         self.resetButton.clicked.connect(self.reset_inputs)
 
         self.mainLayout.addLayout(self.formLayout)
@@ -216,6 +226,7 @@ class Ui_MainWindow(object):
         self.plainTextEdit_3.clear()
         self.plainTextEdit_4.clear()
         self.plainTextEdit_5.clear()
+        self.plainTextEdit_id.clear()
         self.plainTextEdit.setFocus()
 
     def retranslateUi(self, MainWindow):
@@ -223,8 +234,16 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("Tambah Data", "Tambah Data"))
         self.pushButton.setText(_translate("MainWindow", "Simpan"))
 
+    def btn_cek_aksi(self):
+        id_sb = self.plainTextEdit_id.toPlainText()
+        # self.messagebox("Gagal", id_sb)
+        if id_sb:
+            self.update_data_aksi(id_sb)
+        else:
+            self.insert_data
 
     def insert_data(self):
+
         nama = self.plainTextEdit.toPlainText()
         kelas = self.plainTextEdit_2.toPlainText()
         asal = self.plainTextEdit_3.toPlainText()
@@ -321,12 +340,14 @@ class Ui_MainWindow(object):
             row = cur.fetchone()
 
             if row:
+                id_sb = str(row[0])
                 nama = row[1]
                 kelas = row[2]
                 asal = row[3]
                 alamat = row[4]
                 no_hp = row[5]
 
+            self.plainTextEdit_id.setPlainText(id_sb)
             self.plainTextEdit.setPlainText(nama)
             self.plainTextEdit_2.setPlainText(kelas)
             self.plainTextEdit_3.setPlainText(asal)
@@ -334,6 +355,30 @@ class Ui_MainWindow(object):
             self.plainTextEdit_5.setText(no_hp)
             self.read_data() 
 
+        except pymysql.Error as e:
+            error_message = f"Gagal: {str(e)}"
+            print(error_message) 
+            self.messagebox("Gagal", f"Terjadi kesalahan: {str(e)}")
+        finally:
+            con.close()
+
+    def update_data_aksi(self, id):
+        try:
+            con = pymysql.connect(db=db_me, user=user_me, host=host_me, passwd=passwd_me, port=port_me, autocommit=True)
+            cur = con.cursor()
+
+            nama = self.plainTextEdit.toPlainText()
+            kelas = self.plainTextEdit_2.toPlainText()
+            asal = self.plainTextEdit_3.toPlainText()
+            alamat = self.plainTextEdit_4.toPlainText()
+            no_hp = self.plainTextEdit_5.text()
+
+            cur.execute("UPDATE tb_siswa_baru SET nama=%s, kelas=%s, asal=%s, alamat=%s, no_hp=%s WHERE id_sb = %s",
+            (nama, kelas, asal, alamat, no_hp, id))
+
+            self.reset_inputs()
+            self.read_data()
+            self.messagebox("Behasil", "Data Diperbarui") 
 
         except pymysql.Error as e:
             error_message = f"Gagal: {str(e)}"
