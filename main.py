@@ -193,7 +193,7 @@ class Ui_MainWindow(object):
         self.tableWidget.setColumnWidth(5, 150)
         self.tableWidget.setHorizontalHeaderLabels(header_labels)
         self.mainLayout.addWidget(self.tableWidget)
-        self.tableWidget.setColumnHidden(0, True)
+        # self.tableWidget.setColumnHidden(0, True)
 
         self.read_data()
 
@@ -270,7 +270,10 @@ class Ui_MainWindow(object):
                     delete_button = QtWidgets.QPushButton("Delete")
                     delete_button.setMaximumWidth(200)
                     delete_button.setStyleSheet("background-color: #C62A88; color: white;")
-                    delete_button.clicked.connect(lambda _, id=row_data[-1]: self.delete_data(id)) 
+                    # id_sb=row_data[0]
+                    # self.messagebox("Gagal", id_sb)
+
+                    # delete_button.clicked.connect(lambda _, id=row_data[0]: self.delete_data(id)) 
 
                     layout.setContentsMargins(0, 0, 0, 0)
                                         
