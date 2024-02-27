@@ -273,6 +273,7 @@ class Ui_MainWindow(object):
                     update_button = QtWidgets.QPushButton("Update")
                     update_button.setMaximumWidth(200)
                     update_button.setStyleSheet("background-color: #03C4A1; color: white;")
+                    update_button.clicked.connect(lambda _, id=str(row_data[0]):self.update_data(id))
 
                     delete_button = QtWidgets.QPushButton("Delete")
                     delete_button.setMaximumWidth(200)
@@ -300,12 +301,40 @@ class Ui_MainWindow(object):
 
     def delete_data(self, id):
         try:
-
             con = pymysql.connect(db=db_me, user=user_me, host=host_me, passwd=passwd_me, port=port_me, autocommit=True)
             cur = con.cursor()
             cur.execute("DELETE FROM tb_siswa_baru WHERE id_sb = %s", (id,))
             self.read_data() 
             self.messagebox("Behasil", "Data Terhapus")
+        except pymysql.Error as e:
+            error_message = f"Gagal: {str(e)}"
+            print(error_message) 
+            self.messagebox("Gagal", f"Terjadi kesalahan: {str(e)}")
+        finally:
+            con.close()
+
+    def update_data(self, id):
+        try:
+            con = pymysql.connect(db=db_me, user=user_me, host=host_me, passwd=passwd_me, port=port_me, autocommit=True)
+            cur = con.cursor()
+            cur.execute("SELECT * FROM tb_siswa_baru WHERE id_sb = %s", (id,))
+            row = cur.fetchone()
+
+            if row:
+                nama = row[1]
+                kelas = row[2]
+                asal = row[3]
+                alamat = row[4]
+                no_hp = row[5]
+
+            self.plainTextEdit.setPlainText(nama)
+            self.plainTextEdit_2.setPlainText(kelas)
+            self.plainTextEdit_3.setPlainText(asal)
+            self.plainTextEdit_4.setPlainText(alamat)
+            self.plainTextEdit_5.setText(no_hp)
+            self.read_data() 
+
+
         except pymysql.Error as e:
             error_message = f"Gagal: {str(e)}"
             print(error_message) 
