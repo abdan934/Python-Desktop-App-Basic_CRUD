@@ -270,7 +270,7 @@ class Ui_MainWindow(object):
                     delete_button = QtWidgets.QPushButton("Delete")
                     delete_button.setMaximumWidth(200)
                     delete_button.setStyleSheet("background-color: #C62A88; color: white;")
-                    #delete_button.clicked.connect(lambda _, id=row_data[-1]: self.delete_data(id)) 
+                    delete_button.clicked.connect(lambda _, id=row_data[-1]: self.delete_data(id)) 
 
                     layout.setContentsMargins(0, 0, 0, 0)
                                         
@@ -294,10 +294,10 @@ class Ui_MainWindow(object):
     def delete_data(self, id):
         try:
 
-            con = pymysql.connect(db=db_me, user=user_me, host=host_me, passwd=passwd_me, port=port_me, autocommit=True)
-            cur = con.cursor()
-            cur.execute("DELETE FROM tb_siswa_baru WHERE id = %s", (id,))
-            self.messagebox("Success", "Data berhasil dihapus")
+            #con = pymysql.connect(db=db_me, user=user_me, host=host_me, passwd=passwd_me, port=port_me, autocommit=True)
+            #cur = con.cursor()
+            #cur.execute("DELETE FROM tb_siswa_baru WHERE id = %s", (id,))
+            self.messagebox("Success", id)
             self.read_data()  # Refresh data after deletion
         except pymysql.Error as e:
             error_message = f"Gagal: {str(e)}"
