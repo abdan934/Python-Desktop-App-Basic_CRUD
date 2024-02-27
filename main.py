@@ -9,8 +9,8 @@ global port_me
 
 host_me = "localhost"
 db_me = "db_sb"
-user_me = "abdan"
-passwd_me = "abdan221279"
+user_me = "root"
+passwd_me = ""
 port_me = 3306
 
 class Ui_MainWindow(object):
@@ -236,7 +236,6 @@ class Ui_MainWindow(object):
 
     def btn_cek_aksi(self):
         id_sb = self.plainTextEdit_id.toPlainText()
-        # self.messagebox("Gagal", id_sb)
         if id_sb:
             self.update_data_aksi(id_sb)
         else:
